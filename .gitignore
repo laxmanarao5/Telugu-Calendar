@@ -1,0 +1,15 @@
+.gradle/
+build/
+local.properties
+secrets.properties
+keystore/
+*.apk
+*.aab
+.idea/
+*.iml
+.kotlin/
+dist/
+__pycache__/
+
+# The published download (linked from the README)
+!releases/telugu-calendar.apk

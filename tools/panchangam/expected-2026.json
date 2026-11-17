@@ -1,0 +1,159 @@
+{
+  "notes": "Published 2026 dates the generator must reproduce. TC = telugucalendar.org monthly festival pages (Telugu states, IST); DP = drikpanchang.com Telugu festival calendar 2026; GOV = Telangana G.O.Rt.No.1715 and Andhra Pradesh G.O.Rt.No.2276 holiday lists as reported by sakshipost.com. `alt` marks dates where sources differ and which dates the generator may produce instead.",
+  "sources": {
+    "TC": "https://telugucalendar.org/festivals/2026/<month>/",
+    "DP": "https://www.drikpanchang.com/telugu/calendar/telugu-calendar.html (year 2026; the Hyderabad list, geoname-id=1269843, has the same Ekadasi, Pradosh and Sankashti dates as the New Delhi default)",
+    "GOV": "https://www.sakshipost.com/news/telangana/telangana-government-releases-2026-holiday-list-full-general-optional-holidays and /news/andhrapradesh/andhra-pradesh-holiday-list-2026-general-optional-holidays-475533"
+  },
+  "festivals": [
+    {"id": "ugadi", "date": "2026-03-19", "source": "TC, DP, GOV"},
+    {"id": "sri-rama-navami", "date": "2026-03-27", "source": "TC, GOV (DP lists the Smarta day 26 Mar)", "alt": ["2026-03-26"]},
+    {"id": "akshaya-tritiya", "date": "2026-04-19", "source": "TC, DP"},
+    {"id": "sankara-jayanti", "date": "2026-04-21", "source": "TC"},
+    {"id": "narasimha-jayanti", "date": "2026-04-30", "source": "TC"},
+    {"id": "buddha-pournami", "date": "2026-05-01", "source": "TC, GOV"},
+    {"id": "hanuman-jayanti", "date": "2026-05-12", "source": "TC, DP"},
+    {"id": "ratha-yatra", "date": "2026-07-16", "source": "TC, GOV"},
+    {"id": "tholi-ekadasi", "date": "2026-07-25", "source": "TC, DP"},
+    {"id": "guru-pournami", "date": "2026-07-29", "source": "TC"},
+    {"id": "naga-panchami", "date": "2026-08-17", "source": "TC"},
+    {"id": "varalakshmi-vratham", "date": "2026-08-21", "source": "TC, GOV (DP: 28 Aug)"},
+    {"id": "raksha-bandhan", "date": "2026-08-28", "source": "TC, DP"},
+    {"id": "krishna-janmashtami", "date": "2026-09-04", "source": "TC, DP, GOV"},
+    {"id": "polala-amavasya", "date": "2026-09-11", "source": "TC"},
+    {"id": "vinayaka-chavithi", "date": "2026-09-14", "source": "TC, DP, GOV"},
+    {"id": "rishi-panchami", "date": "2026-09-15", "source": "TC"},
+    {"id": "vamana-jayanti", "date": "2026-09-23", "source": "TC"},
+    {"id": "ananta-chaturdashi", "date": "2026-09-25", "source": "TC, DP"},
+    {"id": "mahalaya-paksham", "date": "2026-09-27", "source": "TC"},
+    {"id": "mahalaya-amavasya", "date": "2026-10-10", "source": "TC, GOV (AP optional)"},
+    {"id": "engili-pula-bathukamma", "date": "2026-10-10", "source": "Bathukamma starts on Mahalaya Amavasya"},
+    {"id": "devi-navaratri", "date": "2026-10-11", "source": "TC, DP"},
+    {"id": "durgashtami", "date": "2026-10-19", "source": "TC, DP (AP government holiday list says 18 Oct)", "alt": ["2026-10-18"]},
+    {"id": "maha-navami", "date": "2026-10-19", "source": "TC, DP"},
+    {"id": "saddula-bathukamma", "date": "2026-10-18", "source": "GOV (Telangana general holiday on a Sunday, ninth day of Bathukamma)"},
+    {"id": "vijayadasami", "date": "2026-10-20", "source": "TC, DP, GOV"},
+    {"id": "atla-tadde", "date": "2026-10-28", "source": "TC, DP"},
+    {"id": "dhanatrayodashi", "date": "2026-11-06", "source": "DP (Pradosh Vrat on Krishna Trayodasi)"},
+    {"id": "naraka-chaturdashi", "date": "2026-11-08", "source": "GOV (Telangana optional holiday)"},
+    {"id": "deepavali", "date": "2026-11-08", "source": "TC, DP, GOV"},
+    {"id": "bali-padyami", "date": "2026-11-10", "source": "TC"},
+    {"id": "bhagini-hastha-bhojanam", "date": "2026-11-11", "source": "TC"},
+    {"id": "nagula-chavithi", "date": "2026-11-13", "source": "TC, DP"},
+    {"id": "kshirabdi-dwadasi", "date": "2026-11-21", "source": "TC (Yogeshwara Dwadashi), DP"},
+    {"id": "karthika-pournami", "date": "2026-11-24", "source": "TC, GOV"},
+    {"id": "subrahmanya-shashti", "date": "2026-12-15", "source": "TC, DP"},
+    {"id": "gita-jayanti", "date": "2026-12-20", "source": "TC (Mokshada Ekadashi)"},
+    {"id": "vaikuntha-ekadasi", "date": "2026-12-20", "source": "TC"},
+    {"id": "dattatreya-jayanti", "date": "2026-12-23", "source": "TC"},
+    {"id": "bhogi", "date": "2026-01-13", "source": "TC (government holiday list uses 14 Jan, see holidays.py)"},
+    {"id": "makara-sankranti", "date": "2026-01-14", "source": "TC (sun enters Makara 15:13 IST); government holiday list says 15 Jan"},
+    {"id": "kanuma", "date": "2026-01-15", "source": "TC (government holiday list: 16 Jan)"},
+    {"id": "mukkanuma", "date": "2026-01-16", "source": "hindupad.com (Bhogi 13, Sankranti 14, Kanuma 15, Mukkanuma 16 Jan 2026)"},
+    {"id": "vasanta-panchami", "date": "2026-01-23", "source": "TC"},
+    {"id": "ratha-saptami", "date": "2026-01-25", "source": "TC"},
+    {"id": "bhishma-ekadasi", "date": "2026-01-29", "source": "TC, DP"},
+    {"id": "maha-shivaratri", "date": "2026-02-15", "source": "TC, DP, GOV"},
+    {"id": "kamuni-pournami", "date": "2026-03-03", "source": "TC, DP (Holika Dahan), GOV (Holi)"},
+    {"id": "dhanurmasam", "date": "2026-12-16", "source": "TC (Dhanu Sankramanam)"},
+    {"id": "uttarayana", "date": "2026-01-14", "source": "TC"},
+    {"id": "dakshinayana", "date": "2026-07-16", "source": "TC"}
+  ],
+  "festivals_2027": [
+    {"id": "bhogi", "date": "2027-01-14", "source": "hindutone.com (Sun enters Makara 21:14 IST on 14 Jan, after sunset, so Sankranti is 15 Jan; Drik Hyderabad)"},
+    {"id": "makara-sankranti", "date": "2027-01-15", "source": "hindutone.com (see Bhogi)"},
+    {"id": "kanuma", "date": "2027-01-16", "source": "hindutone.com"},
+    {"id": "mukkanuma", "date": "2027-01-17", "source": "hindutone.com"},
+    {"id": "maha-shivaratri", "date": "2027-03-06", "source": "DP 2027"},
+    {"id": "kamuni-pournami", "date": "2027-03-21", "source": "DP 2027 (Holika Dahan)"},
+    {"id": "ugadi", "date": "2027-04-07", "source": "DP 2027"},
+    {"id": "sri-rama-navami", "date": "2027-04-15", "source": "DP 2027"},
+    {"id": "akshaya-tritiya", "date": "2027-05-09", "source": "DP 2027"},
+    {"id": "hanuman-jayanti", "date": "2027-05-31", "source": "DP 2027"},
+    {"id": "tholi-ekadasi", "date": "2027-07-14", "source": "DP 2027 (Devshayani Ekadashi)"},
+    {"id": "varalakshmi-vratham", "date": "2027-08-13", "source": "DP 2027"},
+    {"id": "raksha-bandhan", "date": "2027-08-17", "source": "DP 2027"},
+    {"id": "krishna-janmashtami", "date": "2027-08-25", "source": "DP 2027"},
+    {"id": "vinayaka-chavithi", "date": "2027-09-04", "source": "DP 2027"},
+    {"id": "ananta-chaturdashi", "date": "2027-09-14", "source": "DP 2027 (Ganesh Visarjan)"},
+    {"id": "devi-navaratri", "date": "2027-09-30", "source": "DP 2027"},
+    {"id": "durgashtami", "date": "2027-10-07", "source": "DP 2027"},
+    {"id": "maha-navami", "date": "2027-10-08", "source": "DP 2027"},
+    {"id": "vijayadasami", "date": "2027-10-09", "source": "DP 2027 (Dussehra)"},
+    {"id": "atla-tadde", "date": "2027-10-18", "source": "DP 2027"},
+    {"id": "deepavali", "date": "2027-10-29", "source": "DP 2027"},
+    {"id": "nagula-chavithi", "date": "2027-11-02", "source": "DP 2027"}
+  ],
+  "vratams_2027": {
+    "source": "DP 2027, Telugu festival list for Hyderabad (https://www.drikpanchang.com/telugu/calendar/telugu-calendar.html?year=2027&geoname-id=1269843), Smarta days",
+    "ekadasi": ["2027-01-03", "2027-01-18", "2027-02-02", "2027-02-17", "2027-03-04", "2027-03-18", "2027-04-02", "2027-04-17", "2027-05-02", "2027-05-16", "2027-06-01", "2027-06-14", "2027-06-30", "2027-07-14", "2027-07-29", "2027-08-12", "2027-08-28", "2027-09-11", "2027-09-26", "2027-10-11", "2027-10-25", "2027-11-10", "2027-11-24", "2027-12-09", "2027-12-23"],
+    "pradosham": ["2027-01-05", "2027-01-20", "2027-02-03", "2027-02-18", "2027-03-05", "2027-03-20", "2027-04-04", "2027-04-18", "2027-05-04", "2027-05-17", "2027-06-02", "2027-06-16", "2027-07-01", "2027-07-15", "2027-07-31", "2027-08-14", "2027-08-29", "2027-09-13", "2027-09-27", "2027-10-12", "2027-10-27", "2027-11-11", "2027-11-25", "2027-12-11", "2027-12-25"],
+    "sankashti-chaturthi": ["2027-01-25", "2027-02-24", "2027-03-25", "2027-04-24", "2027-05-23", "2027-06-22", "2027-07-22", "2027-08-20", "2027-09-19", "2027-10-18", "2027-11-17", "2027-12-16"]
+  },
+  "masam_begins": [
+    "2026-02-18", "2026-03-19", "2026-04-18", "2026-05-17", "2026-06-16", "2026-07-15",
+    "2026-08-13", "2026-09-12", "2026-10-11", "2026-11-10", "2026-12-09"
+  ],
+  "masam_begins_source": "TC (Phalguna 18 Feb, Chaitra 19 Mar, Vaisakha 18 Apr, Adhika Jyeshtha 17 May, Nija Jyeshtha 16 Jun, Ashadha 15 Jul, Sravana 13 Aug, Bhadrapada 12 Sep, Ashwayuja 11 Oct, Karthika 10 Nov, Margasira 9 Dec)",
+  "ekadasi": {
+    "source": "DP (24 Ekadasi in 2026, Adhika Padmini and Parama included); TC agrees",
+    "dates": ["2026-01-14", "2026-01-29", "2026-02-13", "2026-02-27", "2026-03-15", "2026-03-29", "2026-04-13", "2026-04-27", "2026-05-13", "2026-05-27", "2026-06-11", "2026-06-25", "2026-07-10", "2026-07-25", "2026-08-09", "2026-08-23", "2026-09-07", "2026-09-22", "2026-10-06", "2026-10-22", "2026-11-05", "2026-11-20", "2026-12-04", "2026-12-20"]
+  },
+  "pradosham": {
+    "source": "DP (Pradosh Vrat)",
+    "dates": ["2026-01-01", "2026-01-16", "2026-01-30", "2026-02-14", "2026-03-01", "2026-03-16", "2026-03-30", "2026-04-15", "2026-04-28", "2026-05-14", "2026-05-28", "2026-06-12", "2026-06-27", "2026-07-12", "2026-07-26", "2026-08-10", "2026-08-25", "2026-09-08", "2026-09-24", "2026-10-08", "2026-10-23", "2026-11-06", "2026-11-22", "2026-12-06", "2026-12-21"]
+  },
+  "sankashti-chaturthi": {
+    "source": "DP (Sankashtahara Chaturthi); TC agrees except 4 Jun",
+    "dates": ["2026-01-06", "2026-02-05", "2026-03-06", "2026-04-05", "2026-05-05", "2026-06-03", "2026-07-03", "2026-08-02", "2026-08-31", "2026-09-29", "2026-10-29", "2026-11-27", "2026-12-26"],
+    "alt": {"2026-06-03": ["2026-06-04"]}
+  },
+  "masa-shivaratri": {
+    "source": "TC (Maha Shivaratri on 15 Feb is a festival, not listed here)",
+    "dates": ["2026-01-16", "2026-03-17", "2026-04-15", "2026-05-15", "2026-06-13", "2026-07-12", "2026-08-11", "2026-09-09", "2026-10-08", "2026-11-07", "2026-12-07"]
+  },
+  "amavasya": {
+    "source": "TC",
+    "dates": ["2026-01-18", "2026-02-17", "2026-03-19", "2026-04-17", "2026-05-16", "2026-06-15", "2026-07-14", "2026-08-12", "2026-09-11", "2026-10-10", "2026-11-09", "2026-12-08"]
+  },
+  "pournami": {
+    "source": "TC",
+    "dates": ["2026-01-03", "2026-02-01", "2026-03-03", "2026-04-02", "2026-05-01", "2026-05-31", "2026-06-29", "2026-07-29", "2026-08-28", "2026-09-26", "2026-10-26", "2026-11-24", "2026-12-24"]
+  },
+  "sankranti": {
+    "source": "TC (Sankramanam dates; Makara is the festival item makara-sankranti)",
+    "dates": {"0": "2026-04-14", "1": "2026-05-15", "2": "2026-06-15", "3": "2026-07-16", "4": "2026-08-17", "5": "2026-09-17", "6": "2026-10-17", "7": "2026-11-16", "8": "2026-12-16", "9": "2026-01-14", "10": "2026-02-13", "11": "2026-03-15"}
+  },
+  "tithi_end": [
+    {"date": "2026-03-03", "tithi": 15, "end": "17:07", "source": "TC Hyderabad page (Pournami up to 17:07)"},
+    {"date": "2026-03-15", "tithi": 26, "end": "09:16", "source": "TC (Krishna Ekadasi up to 09:16)"},
+    {"date": "2026-03-19", "tithi": 30, "end": "06:52", "source": "TC (Amavasya up to 06:52)"},
+    {"date": "2026-03-29", "tithi": 11, "end": "07:46", "source": "TC (Sukla Ekadasi up to 07:46)"}
+  ],
+  "tithi_end_tolerance_minutes": 6,
+  "day_samples_source": "drikpanchang.com day panchang for Hyderabad (geoname 1269843), https://www.drikpanchang.com/panchang/day-panchang.html?geoname-id=1269843&date=DD/MM/YYYY; i = tithi / nakshatra / yoga / karana at sunrise with its end time; rk, ym, gk, ab = start of Rahu kalam, Yamaganda, Gulikai kalam, Abhijit",
+  "day_samples_tolerance_minutes": {"clock": 2, "end": 4},
+  "day_samples": [
+    {"date": "2026-01-01", "sr": "06:46", "ss": "17:53", "t": [13, "2026-01-01T22:22"], "n": [4, "2026-01-01T22:48"], "y": [23, "2026-01-01T17:12"], "k": 3, "ab": "11:58", "rk": "13:43", "ym": "06:46", "gk": "09:33"},
+    {"date": "2026-02-15", "sr": "06:43", "ss": "18:18", "t": [28, "2026-02-15T17:04"], "n": [21, "2026-02-15T19:48"], "y": [17, "2026-02-16T02:47"], "k": 6, "ab": "12:07", "rk": "16:51", "ym": "12:30", "gk": "15:24"},
+    {"date": "2026-03-19", "sr": "06:21", "ss": "18:27", "t": [30, "2026-03-19T06:52"], "n": [26, "2026-03-20T04:05"], "y": [24, "2026-03-20T01:17"], "k": 10, "ab": "12:00", "rk": "13:55", "ym": "06:21", "gk": "09:23"},
+    {"date": "2026-05-17", "sr": "05:44", "ss": "18:42", "t": [1, "2026-05-17T21:40"], "n": [3, "2026-05-17T14:32"], "y": [5, "2026-05-17T06:15"], "k": 11, "ab": "11:47", "rk": "17:04", "ym": "12:13", "gk": "15:27"},
+    {"date": "2026-06-15", "sr": "05:42", "ss": "18:52", "t": [30, "2026-06-15T08:23"], "n": [5, "2026-06-15T19:08"], "y": [9, "2026-06-15T08:56"], "k": 10, "ab": "11:50", "rk": "07:21", "ym": "10:38", "gk": "13:55"},
+    {"date": "2026-08-28", "sr": "06:02", "ss": "18:33", "t": [15, "2026-08-28T09:48"], "n": [24, "2026-08-29T03:13"], "y": [6, "2026-08-28T07:28"], "k": 1, "ab": "11:52", "rk": "10:43", "ym": "15:25", "gk": "07:36"},
+    {"date": "2026-10-20", "sr": "06:10", "ss": "17:51", "t": [9, "2026-10-20T12:50"], "n": [22, "2026-10-20T18:02"], "y": [9, "2026-10-21T00:50"], "k": 3, "ab": "11:37", "rk": "14:56", "ym": "09:06", "gk": "12:01"},
+    {"date": "2026-12-31", "sr": "06:46", "ss": "17:52", "t": [23, "2026-12-31T12:32"], "n": [13, "2026-12-31T16:13"], "y": [5, "2026-12-31T12:26"], "k": 3, "ab": "11:57", "rk": "13:42", "ym": "06:46", "gk": "09:33"},
+    {"date": "2027-04-07", "sr": "06:07", "ss": "18:30", "t": [1, "2027-04-08T04:28"], "n": [27, "2027-04-07T18:25"], "y": [26, "2027-04-07T07:26"], "k": 11, "ab": null, "rk": "12:18", "ym": "07:39", "gk": "10:45"},
+    {"date": "2027-09-04", "sr": "06:03", "ss": "18:28", "t": [4, "2027-09-04T12:25"], "n": [14, "2027-09-04T14:49"], "y": [24, "2027-09-04T08:13"], "k": 7, "ab": "11:50", "rk": "09:09", "ym": "13:48", "gk": "06:03"},
+    {"date": "2027-10-29", "sr": "06:13", "ss": "17:46", "t": [30, "2027-10-29T19:05"], "n": [14, "2027-10-29T10:27"], "y": [2, "2027-10-30T00:34"], "k": 9, "ab": "11:37", "rk": "10:33", "ym": "14:53", "gk": "07:40"}
+  ],
+  "samvatsara": {"2026-03-19": "Parabhava", "source": "Tirumala festival calendar guides (Parabhava 2026-27); 60-year cycle"},
+  "eclipses": [
+    {"date": "2026-03-03", "id": "chandra-grahanam", "source": "TC (total lunar eclipse, partly visible in India); no other eclipse of 2026 is visible from India"}
+  ],
+  "moon": {
+    "new_moon_utc": "2026-02-17T12:01",
+    "full_moon_utc": "2026-03-03T11:38",
+    "tolerance_minutes": 10,
+    "source": "astronomical almanac values for the Feb 2026 annular solar and Mar 2026 total lunar eclipses"
+  }
+}

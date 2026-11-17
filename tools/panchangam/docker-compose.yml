@@ -1,0 +1,14 @@
+# From this folder:
+#   docker compose build
+#   docker compose run --rm generator python generate.py 2026 2027
+#   docker compose run --rm generator python verify.py
+services:
+  generator:
+    build: .
+    image: telugu-panchangam-generator
+    working_dir: /work
+    volumes:
+      - .:/work
+      - ../../app/src/main/assets/calendar:/out
+    environment:
+      - OUT_DIR=/out
