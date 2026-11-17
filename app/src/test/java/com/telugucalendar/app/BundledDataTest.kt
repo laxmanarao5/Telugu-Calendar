@@ -9,19 +9,30 @@ import org.junit.Test
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 // Checks the real bundled year files in app/src/main/assets/calendar, which the tests read straight from the source tree.
 class BundledDataTest {
-    private val files = File("src/main/assets/calendar").listFiles { f -> f.extension == "json" }.orEmpty().sortedBy { it.name }
-    private val years = files.map { YearData.parse(it.readText()) }
+    private val files = File("src/main/assets/calendar").listFiles { f -> f.name.matches(Regex("""\d{4}-\d{2}\.json""")) }.orEmpty().sortedBy { it.name }
+    private val chunks = files.map { YearData.parse(it.readText()) }
+
+    // The month files of each year put back together, so the checks below can look at whole years.
+    private val years = chunks.groupBy { it.year }.map { (year, parts) ->
+        YearData(year = year, samvatsara = parts.first().samvatsara, days = parts.sortedBy { it.month }.flatMap { it.days })
+    }.sortedBy { it.year }
 
     @Test fun thereIsAtLeast2026() {
         assertTrue("no calendar files found in src/main/assets/calendar", files.isNotEmpty())
         assertTrue(years.any { it.year == 2026 })
     }
 
-    @Test fun fileNamesMatchTheirYear() {
-        files.zip(years).forEach { (f, y) -> assertEquals(f.name, "${y.year}.json") }
+    @Test fun everyYearHasTwelveMonthFilesNamedAfterTheirContent() {
+        files.zip(chunks).forEach { (f, c) ->
+            assertEquals(f.name, "%d-%02d.json".format(c.year, c.month))
+            assertTrue("${f.name} is empty", c.days.isNotEmpty())
+            c.days.forEach { assertEquals("${f.name} holds ${it.d}", YearMonth.of(c.year, c.month), YearMonth.from(it.date)) }
+        }
+        chunks.groupBy { it.year }.forEach { (year, parts) -> assertEquals("months of $year", (1..12).toList(), parts.map { it.month }.sorted()) }
     }
 
     @Test fun everyYearHasEveryDayInOrder() {
@@ -88,7 +99,7 @@ class BundledDataTest {
     }
 
     @Test fun appDataLoadsEveryBundledYear() {
-        val app = AppData(years.associateBy { it.year })
+        val app = AppData(chunks)
         assertEquals(years.size * 12, app.months.size)
     }
 }

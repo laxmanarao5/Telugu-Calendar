@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Checks the generated calendar/<year>.json against published 2026 dates (expected-2026.json) and against internal invariants.
+"""Checks the generated calendar/<year>-<MM>.json files against published 2026 dates (expected-2026.json) and against internal invariants.
 
     docker compose run --rm generator python verify.py          # checks 2026 against the published dates, and every generated year for the invariants
 
 Exit code 1 on any mismatch; each mismatch is printed with what was expected and what was generated.
 """
 import datetime as dt
-import glob
 import json
 import os
 import sys
 
 import astro
+import calendar_io
 import festivals
 
 OUT_DIR = os.environ.get("OUT_DIR", "../../app/src/main/assets/calendar")
@@ -25,8 +25,7 @@ def bad(msg):
 
 
 def load(year):
-    with open(os.path.join(OUT_DIR, f"{year}.json"), encoding="utf-8") as f:
-        return json.load(f)
+    return calendar_io.load_year(OUT_DIR, year)
 
 
 def index_by_id(data):
@@ -185,8 +184,7 @@ def check_samples(exp, cache):
     for s in exp["day_samples"]:
         year = int(s["date"][:4])
         if year not in cache:
-            path = os.path.join(OUT_DIR, f"{year}.json")
-            if not os.path.exists(path):
+            if year not in calendar_io.years_in(OUT_DIR):
                 continue
             cache[year] = {d["d"]: d for d in load(year)["days"]}
         d = cache[year].get(s["date"])
@@ -218,12 +216,12 @@ def check_samples(exp, cache):
 
 def main():
     exp = json.load(open(os.path.join(HERE, "expected-2026.json"), encoding="utf-8"))
-    files = sorted(glob.glob(os.path.join(OUT_DIR, "*.json")))
-    if not files:
+    years = calendar_io.years_in(OUT_DIR)
+    if not years:
         sys.exit("no generated files: run generate.py first")
-    for path in files:
-        data = json.load(open(path, encoding="utf-8"))
-        print(f"{os.path.basename(path)}:")
+    for year in years:
+        data = load(year)
+        print(f"{year} (12 month files):")
         invariants(data)
         if data["year"] == 2026:
             check_2026(data, exp)

@@ -1,11 +1,13 @@
 package com.telugucalendar.app.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,6 +15,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +23,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -95,6 +101,41 @@ fun FestivalLine(festival: Festival, lang: Lang, modifier: Modifier = Modifier) 
         val other = if (lang == Lang.TE) festival.en else festival.te
         if (other.isNotBlank() && other != festival.name(lang == Lang.TE)) {
             Text(other, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/** Shown for a month whose data is still being read in the background. */
+@Composable
+fun LoadingMonth() {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+}
+
+/** One colour per weekday, Sunday first, for the weekday labels of the wall and modern views. */
+val WeekdayColors = listOf(
+    Color(0xFFC62828), Color(0xFF455A64), Color(0xFFE65100), Color(0xFF2E7D32), Color(0xFF1565C0), Color(0xFF6A1B9A), Color(0xFFAD1457),
+)
+
+/** The moon as it looks on a tithi (1..15 waxing to the full moon, 16..30 waning to the new moon). */
+@Composable
+fun MoonPhase(tithi: Int, diameter: Dp, modifier: Modifier = Modifier) {
+    val dark = Color(0xFF37474F)
+    val lit = Color(0xFFFFD54F)
+    Canvas(modifier.size(diameter)) {
+        val r = this.size.minDimension / 2f
+        val centre = Offset(r, r)
+        val waxing = tithi <= 15
+        val fraction = if (waxing) tithi / 15f else (30 - tithi) / 15f
+        drawCircle(dark, r, centre)
+        when {
+            fraction >= 0.99f -> drawCircle(lit, r, centre)
+            fraction <= 0.01f -> Unit
+            else -> {
+                // The lit half (right when waxing, left when waning), then the terminator: an ellipse that is dark for a crescent and lit for a gibbous moon.
+                drawArc(lit, startAngle = if (waxing) -90f else 90f, sweepAngle = 180f, useCenter = true, topLeft = Offset.Zero, size = Size(2 * r, 2 * r))
+                val rx = kotlin.math.abs(1f - 2f * fraction) * r
+                drawOval(if (fraction < 0.5f) dark else lit, topLeft = Offset(r - rx, 0f), size = Size(2 * rx, 2 * r))
+            }
         }
     }
 }

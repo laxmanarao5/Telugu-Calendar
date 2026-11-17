@@ -11,7 +11,7 @@ A free Android app: the Telugu panchangam calendar for **2026** (2027 is generat
 * An **in-app update checker**: on launch it reads `releases/version.json` from this GitHub repo and offers the new APK.
 
 ## Download
-**[Download the latest APK](https://github.com/laxmanarao5/Telugu-Calendar/raw/main/releases/telugu-calendar.apk)** (version 1.0.0, about 24 MB). On your phone, open the file and allow "Install unknown apps" for your browser when asked. The app then updates itself from this repo.
+**[Download the latest APK](https://github.com/laxmanarao5/Telugu-Calendar/raw/main/releases/telugu-calendar.apk)** (version 1.0.1, about 24 MB). On your phone, open the file and allow "Install unknown apps" for your browser when asked. The app then updates itself from this repo.
 
 Everything is worked out ahead of time and bundled in the app as JSON, so it runs fully offline. Nothing to pay for, no server.
 
@@ -23,8 +23,8 @@ docker compose run --rm android ./gradlew testDebugUnitTest assembleDebug
 The APK is `app/build/outputs/apk/debug/app-debug.apk`. On Windows with Docker Desktop, first run `export PATH="$PATH:/c/Program Files/Docker/Docker/resources/bin"` in Git Bash.
 
 ## Calendar data (2026, 2027, ...)
-`app/src/main/assets/calendar/<year>.json` is produced by `tools/panchangam/` (Python + Swiss Ephemeris, Lahiri ayanamsa, Hyderabad sunrise). The format is in [DATA_FORMAT.md](DATA_FORMAT.md).
-The app loads every year file it finds and opens on the current month, so **adding a year is: generate its file, rebuild, release**:
+`app/src/main/assets/calendar/<year>-<MM>.json` (one file per month) is produced by `tools/panchangam/` (Python + Swiss Ephemeris, Lahiri ayanamsa, Hyderabad sunrise). The format is in [DATA_FORMAT.md](DATA_FORMAT.md).
+The app loads every year file it finds and opens on the current month, so **adding a year is: generate its twelve files, rebuild, release**:
 ```bash
 cd tools/panchangam
 docker compose run --rm generator python generate.py 2028
@@ -51,7 +51,7 @@ The repo name used by the updater is `Updater.REPO` in `app/src/main/java/com/te
 | Path | What |
 |---|---|
 | `app/` | The Android app (Kotlin, Jetpack Compose, Material 3) |
-| `app/src/main/assets/calendar/` | Generated year data |
+| `app/src/main/assets/calendar/` | Generated calendar data (one file per month) |
 | `tools/panchangam/` | The data generator and its verification |
 | `DATA_FORMAT.md` | Contract between generator and app |
 | `releases/` | Published APK and `version.json` for the updater |

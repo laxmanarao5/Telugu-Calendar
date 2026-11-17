@@ -1,6 +1,6 @@
-# Calendar data format (`app/src/main/assets/calendar/<year>.json`)
+# Calendar data format (`app/src/main/assets/calendar/<year>-<MM>.json`)
 
-One file per calendar year, produced by the generator in `tools/panchangam/` (Python + Swiss Ephemeris, run in Docker).
+One file per calendar month (`2026-01.json` ... `2026-12.json`; 12 files per year), produced by the generator in `tools/panchangam/` (Python + Swiss Ephemeris, run in Docker).
 The app only reads these files; it never computes a panchangam itself. To add 2028, run the generator for 2028 and rebuild.
 All times are local clock time for the reference place (Hyderabad, IST, UTC+05:30) as `HH:mm`, or `yyyy-MM-ddTHH:mm` when a date is needed.
 
@@ -8,13 +8,14 @@ All times are local clock time for the reference place (Hyderabad, IST, UTC+05:3
 {
   "version": 1,
   "year": 2026,
+  "month": 11,                         // 1..12; the file holds only this month's days
   "place": { "name": "Hyderabad", "lat": 17.385, "lon": 78.4867 },
   "ayanamsa": "lahiri",
-  "samvatsara": [                      // Telugu year names that apply in this calendar year, with the first day each applies
+  "samvatsara": [                      // Telugu year names that apply in this calendar year, with the first day each applies (the same list is repeated in all 12 files of the year)
     { "from": "2026-01-01", "te": "విశ్వావసు", "en": "Vishvavasu" },
     { "from": "2026-03-19", "te": "పరాభవ",     "en": "Parabhava" }
   ],
-  "days": [ /* one object per date, 1 Jan .. 31 Dec, in order */ ]
+  "days": [ /* one object per date of this month, in order */ ]
 }
 ```
 

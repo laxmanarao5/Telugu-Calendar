@@ -1,6 +1,7 @@
 package com.telugucalendar.app
 
 import com.telugucalendar.app.data.AppData
+import com.telugucalendar.app.data.CalendarRepository
 import com.telugucalendar.app.data.FestFilter
 import com.telugucalendar.app.data.YearData
 import com.telugucalendar.app.domain.Lang
@@ -56,6 +57,8 @@ class NamesAndModelTest {
          ]}
     """.trimIndent()
 
+    private val allOf2026 = (1..12).map { YearMonth.of(2026, it) }
+
     @Test fun parsesTheDataFormatAndIgnoresUnknownFields() {
         val y = YearData.parse(sample)
         assertEquals(2026, y.year)
@@ -66,15 +69,15 @@ class NamesAndModelTest {
     }
 
     @Test fun appDataIndexesDaysAndPicksTheSamvatsaraByDate() {
-        val app = AppData(mapOf(2026 to YearData.parse(sample)))
-        assertEquals(12 * 1, app.months.size)
+        val app = AppData(listOf(YearData.parse(sample)), allOf2026)
+        assertEquals(12, app.months.size)
         assertEquals("Vishvavasu", app.samvatsara(LocalDate.of(2026, 3, 18))?.en)
         assertEquals("Parabhava", app.samvatsara(LocalDate.of(2026, 3, 19))?.en)
         assertEquals(2, app.daysOf(YearMonth.of(2026, 3)).size)
     }
 
     @Test fun festivalFiltersSeparateKinds() {
-        val app = AppData(mapOf(2026 to YearData.parse(sample)))
+        val app = AppData(listOf(YearData.parse(sample)), allOf2026)
         val march = YearMonth.of(2026, 3)
         assertEquals(2, app.festivalsIn(march).size)
         assertEquals(listOf("ugadi"), app.festivalsIn(march, FestFilter.FESTIVAL).map { it.second.id })
@@ -83,9 +86,30 @@ class NamesAndModelTest {
     }
 
     @Test fun clampKeepsTheAppInsideTheBundledYears() {
-        val app = AppData(mapOf(2026 to YearData.parse(sample)))
+        val app = AppData(listOf(YearData.parse(sample)), allOf2026)
         assertEquals(YearMonth.of(2026, 12), app.clamp(YearMonth.of(2028, 5)))
         assertEquals(YearMonth.of(2026, 1), app.clamp(YearMonth.of(2020, 5)))
         assertEquals(YearMonth.of(2026, 6), app.clamp(YearMonth.of(2026, 6)))
+    }
+
+    @Test fun aPartialLoadKnowsEveryMonthButOnlyHasTheFirstOnesDays() {
+        val first = AppData(listOf(YearData.parse(sample)), allOf2026, complete = false)
+        assertEquals(12, first.months.size)
+        assertTrue(first.isLoaded(YearMonth.of(2026, 3)))
+        assertTrue(!first.isLoaded(YearMonth.of(2026, 4)))
+        assertTrue(!first.complete)
+        val rest = YearData.parse("""{"year":2026,"month":4,"days":[{"d":"2026-04-01","ms":1,"t":[{"i":13,"e":"2026-04-01T20:00"}],"n":[{"i":1,"e":"2026-04-01T20:00"}]}]}""")
+        val all = first.withMore(listOf(rest))
+        assertTrue(all.complete)
+        assertTrue(all.isLoaded(YearMonth.of(2026, 4)))
+        assertEquals(12, all.months.size)
+        assertEquals("Parabhava", all.samvatsara(LocalDate.of(2026, 4, 1))?.en)   // the samvatsara list comes from whichever chunk has it
+    }
+
+    @Test fun monthFileNamesAreRecognised() {
+        assertEquals(YearMonth.of(2026, 11), CalendarRepository.parseName("2026-11.json"))
+        assertEquals(null, CalendarRepository.parseName("2026.json"))
+        assertEquals(null, CalendarRepository.parseName("2026-13.json"))
+        assertEquals(null, CalendarRepository.parseName("notes.txt"))
     }
 }

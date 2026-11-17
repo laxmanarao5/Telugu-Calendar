@@ -3,6 +3,7 @@ package com.telugucalendar.app
 import com.telugucalendar.app.data.DayData
 import com.telugucalendar.app.data.Festival
 import com.telugucalendar.app.data.Slot
+import com.telugucalendar.app.data.YearData
 import com.telugucalendar.app.domain.CalendarLogic
 import com.telugucalendar.app.domain.Lang
 import org.junit.Assert.assertEquals
@@ -33,6 +34,29 @@ class CalendarLogicTest {
         val feb = CalendarLogic.monthGrid(YearMonth.of(2026, 2))
         assertEquals(28, feb.size)
         assertTrue(feb.none { it == null })
+    }
+
+    @Test fun weeksAreSevenDaysEachSundayFirst() {
+        val jan = CalendarLogic.weeksOf(YearMonth.of(2026, 1))
+        assertEquals(5, jan.size)
+        assertTrue(jan.all { it.size == 7 })
+        assertEquals(LocalDate.of(2026, 1, 1), jan[0][4])   // Thursday
+        assertEquals(LocalDate.of(2026, 1, 4), jan[1][0])   // the next Sunday
+    }
+
+    @Test fun shakaYearTurnsOverAtUgadi() {
+        fun day(date: String, ms: Int) = YearData.parse("""{"year":${date.take(4)},"days":[{"d":"$date","ms":$ms,"t":[{"i":1}],"n":[{"i":1}]}]}""").days.single()
+        assertEquals(1947, CalendarLogic.shakaYear(day("2026-01-01", 10)))   // Pushya, before Ugadi 2026
+        assertEquals(1947, CalendarLogic.shakaYear(day("2026-03-18", 12)))   // the day before Ugadi
+        assertEquals(1948, CalendarLogic.shakaYear(day("2026-03-19", 1)))    // Ugadi
+        assertEquals(1948, CalendarLogic.shakaYear(day("2026-12-25", 10)))   // Pushya again, after Ugadi
+    }
+
+    @Test fun rahuTableTimesAreShort() {
+        assertEquals("4:30", CalendarLogic.clockShort("16:30"))
+        assertEquals("12:05", CalendarLogic.clockShort("12:05"))
+        assertEquals("7:30-9:00", CalendarLogic.rangeShort(listOf("07:30", "09:00")))
+        assertEquals("", CalendarLogic.rangeShort(emptyList()))
     }
 
     @Test fun monthGridAlwaysWholeWeeks() {

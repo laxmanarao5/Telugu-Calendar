@@ -71,6 +71,8 @@ data class Samvatsara(val from: String, val te: String, val en: String)
 data class YearData(
     val version: Int = 1,
     val year: Int,
+    /** 1..12 for a month file (the days of that month only); 0 for a whole-year file. */
+    val month: Int = 0,
     val samvatsara: List<Samvatsara> = emptyList(),
     val days: List<DayData> = emptyList(),
 ) {
@@ -90,29 +92,45 @@ fun Festival.matches(filter: FestFilter) = when (filter) {
     FestFilter.OTHER -> k == Festival.KIND_SANKRANTI || k == Festival.KIND_ECLIPSE || k == Festival.KIND_OTHER
 }
 
-/** Everything the app knows: every bundled year, indexed by date. */
-class AppData(val years: Map<Int, YearData>) {
-    private val byDate: Map<LocalDate, DayData> = years.values.flatMap { it.days }.associateBy { it.date }
-    val sortedYears: List<Int> = years.keys.sorted()
+/**
+ * Everything the app knows, indexed by date. The data comes as one chunk per month (`assets/calendar/<year>-<MM>.json`).
+ * [knownMonths] lists every month that has a file, so the pager is complete even while only the first chunk is loaded;
+ * [complete] is true once every chunk has been read.
+ */
+class AppData(
+    val chunks: List<YearData>,
+    knownMonths: Collection<YearMonth> = emptyList(),
+    val complete: Boolean = true,
+) {
+    private val days: List<DayData> = chunks.flatMap { it.days }.sortedBy { it.date }
+    private val byDate: Map<LocalDate, DayData> = days.associateBy { it.date }
+    private val loadedMonths: Set<YearMonth> = days.mapTo(HashSet()) { YearMonth.from(it.date) }
 
     /** Every month of every bundled year, in order: the pages of the month pager. */
-    val months: List<YearMonth> = sortedYears.flatMap { y -> (1..12).map { YearMonth.of(y, it) } }
+    val months: List<YearMonth> = (knownMonths + days.map { YearMonth.from(it.date) }).distinct().sorted()
+    val sortedYears: List<Int> = months.map { it.year }.distinct()
+
+    /** This data plus [more] chunks, now complete. */
+    fun withMore(more: List<YearData>) = AppData(chunks + more, months, complete = true)
 
     fun day(date: LocalDate): DayData? = byDate[date]
+
+    /** True when the data of [ym] has been read (it may still be loading in the background). */
+    fun isLoaded(ym: YearMonth) = ym in loadedMonths
 
     fun daysOf(ym: YearMonth): List<DayData> = (1..ym.lengthOfMonth()).mapNotNull { byDate[ym.atDay(it)] }
 
     /** The Telugu year (samvatsara) that applies on [date]. */
     fun samvatsara(date: LocalDate): Samvatsara? {
-        val year = years[date.year] ?: return null
-        return year.samvatsara.lastOrNull { LocalDate.parse(it.from) <= date } ?: year.samvatsara.firstOrNull()
+        val list = chunks.firstOrNull { it.year == date.year && it.samvatsara.isNotEmpty() }?.samvatsara ?: return null
+        return list.lastOrNull { LocalDate.parse(it.from) <= date } ?: list.firstOrNull()
     }
 
     fun festivalsIn(ym: YearMonth, filter: FestFilter = FestFilter.ALL): List<Pair<DayData, Festival>> =
         daysOf(ym).flatMap { day -> day.f.filter { it.matches(filter) }.map { day to it } }
 
     fun festivalsInYear(year: Int, filter: FestFilter = FestFilter.ALL): List<Pair<DayData, Festival>> =
-        years[year]?.days.orEmpty().flatMap { day -> day.f.filter { it.matches(filter) }.map { day to it } }
+        days.filter { it.date.year == year }.flatMap { day -> day.f.filter { it.matches(filter) }.map { day to it } }
 
     /** The nearest month that has data (the app opens on the current month, or on the closest one when that year is missing). */
     fun clamp(ym: YearMonth): YearMonth = when {

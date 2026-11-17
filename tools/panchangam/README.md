@@ -1,13 +1,13 @@
 # Panchangam generator
 
-Produces `app/src/main/assets/calendar/<year>.json` (format: [DATA_FORMAT.md](../../DATA_FORMAT.md)) for the Telugu calendar app.
+Produces `app/src/main/assets/calendar/<year>-<MM>.json` (one file per month) (format: [DATA_FORMAT.md](../../DATA_FORMAT.md)) for the Telugu calendar app.
 Python + the Swiss Ephemeris (`pyswisseph`), run in Docker so nothing is installed on the host.
 
 ```bash
 export PATH="$PATH:/c/Program Files/Docker/Docker/resources/bin"     # Windows host only
 cd tools/panchangam
 docker compose build                                                  # once (compiles pyswisseph)
-docker compose run --rm generator python generate.py 2026 2027        # writes ../../app/src/main/assets/calendar/2026.json, 2027.json
+docker compose run --rm generator python generate.py 2026 2027        # writes ../../app/src/main/assets/calendar/2026-01.json ... 2027-12.json
 docker compose run --rm generator python verify.py                    # checks the files against published 2026 dates and invariants
 ```
 

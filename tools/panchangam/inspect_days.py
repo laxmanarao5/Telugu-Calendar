@@ -8,9 +8,11 @@ import json
 import os
 import sys
 
+import calendar_io
+
 OUT_DIR = os.environ.get("OUT_DIR", "../../app/src/main/assets/calendar")
 year = sys.argv[1]
-days = {x["d"]: x for x in json.load(open(os.path.join(OUT_DIR, f"{year}.json"), encoding="utf-8"))["days"]}
+days = {x["d"]: x for x in calendar_io.load_year(OUT_DIR, int(year))["days"]}
 for rng in sys.argv[2:]:
     a, b = (dt.date.fromisoformat(x) for x in rng.split(":"))
     while a <= b:

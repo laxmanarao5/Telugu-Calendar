@@ -75,15 +75,17 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         viewModelScope.launch {
-            _data.value = runCatching {
-                withContext(Dispatchers.IO) { CalendarRepository(app.assets).load() }
-            }.fold(
-                onSuccess = { loaded ->
-                    _month.value = loaded.clamp(YearMonth.now())
-                    DataState.Ready(loaded)
-                },
-                onFailure = { DataState.Failed(it.message ?: "") },
-            )
+            // Read just the current month first so the screen can appear at once, then the rest in the background.
+            val repo = runCatching { withContext(Dispatchers.IO) { CalendarRepository(app.assets) } }
+            val first = repo.mapCatching { r -> withContext(Dispatchers.IO) { r.first(YearMonth.now()) } }
+            first.onFailure { _data.value = DataState.Failed(it.message ?: "") }
+            first.onSuccess { firstChunk ->
+                _month.value = firstChunk.clamp(YearMonth.now())
+                _data.value = DataState.Ready(firstChunk)
+                runCatching { withContext(Dispatchers.IO) { repo.getOrThrow().rest(firstChunk) } }
+                    .onSuccess { _data.value = DataState.Ready(it) }
+                    .onFailure { _data.value = DataState.Failed(it.message ?: "") }
+            }
         }
         checkForUpdate(manual = false)
     }

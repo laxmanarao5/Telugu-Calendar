@@ -5,7 +5,7 @@ Any AI agent (or new developer) working in this repo should read this file befor
 
 ## What this is
 An Android app (Kotlin, Compose, Material 3) with the **Telugu panchangam calendar**: a wall-calendar view, a modern month view with the day's panchangam, and a festivals list. The owner asked for:
-* 2026 now, and 2027 later: the app is **data driven**, one JSON file per year in `app/src/main/assets/calendar/`.
+* 2026 now, and 2027 later: the app is **data driven**, one JSON file per month (`<year>-<MM>.json`) in `app/src/main/assets/calendar/`.
 * A Google AdMob banner whose ids the owner configures later (blank = Google's test ids).
 * An app-update checker that reads `releases/version.json` from the GitHub repo `laxmanarao5/Telugu-Calendar` (same design as the owner's Vinayaka Finance app).
 It lives in its own repo (the owner's other projects are separate repos; this one was split out on purpose).
@@ -23,7 +23,7 @@ It lives in its own repo (the owner's other projects are separate repos; this on
 | Area | Where | Notes |
 |---|---|---|
 | Data model | `data/Model.kt` | `YearData`, `DayData`, `Slot`, `Festival`, and `AppData` (all years indexed by date, pager months, festival filters) |
-| Loading | `data/CalendarRepository.kt` | reads every `assets/calendar/*.json` |
+| Loading | `data/CalendarRepository.kt` | reads the current month first (the screen appears at once), then every other month in the background |
 | Settings | `data/Prefs.kt` | DataStore: language, theme, dismissed update |
 | Updates | `data/update/Updater.kt` | version.json check, SHA-256 verified download, installer intent. `Updater.REPO` is the GitHub repo |
 | Logic | `domain/CalendarLogic.kt`, `Names.kt`, `Strings.kt` | pure Kotlin, unit tested |

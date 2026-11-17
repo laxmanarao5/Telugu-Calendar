@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes calendar/<year>.json (format: DATA_FORMAT.md at the repo root).
+"""Writes calendar/<year>-<MM>.json, one file per month (format: DATA_FORMAT.md at the repo root).
 
     docker compose run --rm generator python generate.py 2026 2027
 """
@@ -11,6 +11,7 @@ import sys
 import swisseph as swe
 
 import astro
+import calendar_io
 import festivals
 from model import Context
 
@@ -136,12 +137,10 @@ def main(years):
     os.makedirs(OUT_DIR, exist_ok=True)
     for year in years:
         data = build(year)
-        path = os.path.join(OUT_DIR, f"{year}.json")
-        with open(path, "w", encoding="utf-8", newline="\n") as f:
-            json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
-            f.write("\n")
+        paths = calendar_io.write_year(OUT_DIR, data)
         count = sum(len(d.get("f", [])) for d in data["days"])
-        print(f"{path}: {len(data['days'])} days, {count} festival items, {os.path.getsize(path) // 1024} KB")
+        size = sum(os.path.getsize(p) for p in paths) // 1024
+        print(f"{year}: {len(data['days'])} days, {count} festival items, {len(paths)} files, {size} KB in {OUT_DIR}")
 
 
 if __name__ == "__main__":

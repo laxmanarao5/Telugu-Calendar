@@ -129,7 +129,7 @@ private fun Root(vm: AppViewModel) {
                 is DataState.Ready -> when (Tab.entries[tab]) {
                     Tab.WALL -> WallCalendarScreen(s.data, lang, month, vm::setMonth, vm::openDay)
                     Tab.MODERN -> ModernCalendarScreen(s.data, lang, month, selected, vm::setMonth, vm::select, vm::goToToday)
-                    Tab.FESTIVALS -> FestivalsScreen(s.data, lang, vm::openDay)
+                    Tab.FESTIVALS -> if (s.data.complete) FestivalsScreen(s.data, lang, vm::openDay) else Centered { CircularProgressIndicator() }
                     Tab.MORE -> MoreScreen(
                         app, lang, theme, defaultView ?: DefaultView.WALL, update,
                         vm::setLang, vm::setTheme, vm::setDefaultView,

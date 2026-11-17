@@ -23,6 +23,26 @@ object CalendarLogic {
         return cells
     }
 
+    /** [monthGrid] cut into Sunday-first weeks (each of 7). The wall and modern views draw one column per week, weekdays running down. */
+    fun weeksOf(ym: YearMonth): List<List<LocalDate?>> = monthGrid(ym).chunked(7)
+
+    /** The Saka year (Telugu panchangams print it next to the samvatsara). It turns over at Ugadi, so Jan to Ugadi belongs to the year before. */
+    fun shakaYear(day: DayData): Int {
+        val beforeUgadi = day.ms >= 10 && day.date.monthValue <= 4   // Pushya, Magha or Phalguna in the early part of the Gregorian year
+        return day.date.year - if (beforeUgadi) 79 else 78
+    }
+
+    /** "4:30" from "16:30" (no AM / PM): for the tight Rahu Kalam table. */
+    fun clockShort(hhmm: String): String {
+        val parts = hhmm.split(":")
+        val h = parts.getOrNull(0)?.toIntOrNull() ?: return hhmm
+        val m = parts.getOrNull(1)?.toIntOrNull() ?: return hhmm
+        return "%d:%02d".format(if (h % 12 == 0) 12 else h % 12, m)
+    }
+
+    /** "4:30-6:00" from ["16:30","18:00"]; blank when there is no range. */
+    fun rangeShort(range: List<String>): String = if (range.size == 2) "${clockShort(range[0])}-${clockShort(range[1])}" else ""
+
     /** The Telugu lunar months a Gregorian month touches, in order, e.g. Pushya then Magha. Each is (month 1..12, adhika). */
     fun lunarMonthsOf(days: List<DayData>): List<Pair<Int, Boolean>> =
         days.map { it.ms to it.isAdhika }.distinct()
