@@ -93,14 +93,14 @@ class NamesAndModelTest {
     }
 
     @Test fun aPartialLoadKnowsEveryMonthButOnlyHasTheFirstOnesDays() {
-        val first = AppData(listOf(YearData.parse(sample)), allOf2026, complete = false)
+        val first = AppData(listOf(YearData.parse(sample)), allOf2026)
         assertEquals(12, first.months.size)
         assertTrue(first.isLoaded(YearMonth.of(2026, 3)))
         assertTrue(!first.isLoaded(YearMonth.of(2026, 4)))
         assertTrue(!first.complete)
         val rest = YearData.parse("""{"year":2026,"month":4,"days":[{"d":"2026-04-01","ms":1,"t":[{"i":13,"e":"2026-04-01T20:00"}],"n":[{"i":1,"e":"2026-04-01T20:00"}]}]}""")
         val all = first.withMore(listOf(rest))
-        assertTrue(all.complete)
+        assertTrue(!all.complete)   // ten months still unread
         assertTrue(all.isLoaded(YearMonth.of(2026, 4)))
         assertEquals(12, all.months.size)
         assertEquals("Parabhava", all.samvatsara(LocalDate.of(2026, 4, 1))?.en)   // the samvatsara list comes from whichever chunk has it

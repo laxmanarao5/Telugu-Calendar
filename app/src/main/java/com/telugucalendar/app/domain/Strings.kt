@@ -74,5 +74,6 @@ object T {
     val noDataForMonth = Str("ఈ నెల డేటా లేదు", "No data for this month yet")
     val until = Str("వరకు", "until")
     val shakaYear = Str("శక సంవత్సరం", "Saka year")
-    val pandugulu = Str("పండుగలు", "Festivals")
+    val rahuAbbr = Str("రా.", "Rahu ")
+    val pandugulu =Str("పండుగలు", "Festivals")
 }

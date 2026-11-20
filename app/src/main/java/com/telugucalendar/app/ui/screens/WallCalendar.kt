@@ -60,7 +60,7 @@ private val BannerGold = Color(0xFFFFD54F)
 private val Ink = Color(0xFF2B1B00)
 private val Line = Color(0xFFB9A98A)
 private val LabelWidth = 46.dp
-private val CellHeight = 68.dp
+private val CellHeight = 100.dp
 
 /**
  * The traditional printed wall calendar: a header with the Telugu year, the month banner and the Rahu Kalam table; then one row per weekday
@@ -210,22 +210,32 @@ private fun WallCell(date: LocalDate, day: DayData?, lang: Lang, isToday: Boolea
             }
         }
         if (day != null) {
-            day.t.firstOrNull()?.let {
-                Text(Names.tithi(it.i, lang), color = Ink, fontSize = 8.sp, lineHeight = 9.sp, maxLines = 1, overflow = TextOverflow.Clip, textAlign = TextAlign.Center)
+            // Small print like a printed wall calendar: each tithi and nakshatra of the day with the time it ends, then the Rahu Kalam.
+            day.t.take(2).forEach {
+                TinyLine("${Names.pakshaShort(it.i, lang)}.${Names.tithi(it.i, lang)}.${CalendarLogic.slotEndShort(it)}", Ink)
             }
-            day.n.firstOrNull()?.let {
-                Text(Names.nakshatra(it.i, lang), color = Ink.copy(alpha = 0.7f), fontSize = 8.sp, lineHeight = 9.sp, maxLines = 1, overflow = TextOverflow.Clip, textAlign = TextAlign.Center)
+            day.n.take(2).forEach {
+                TinyLine("${Names.nakshatra(it.i, lang)}.${CalendarLogic.slotEndShort(it)}", Ink.copy(alpha = 0.75f))
+            }
+            CalendarLogic.rangeDots(day.rk).takeIf { it.isNotEmpty() }?.let {
+                TinyLine("${T.rahuAbbr.of(lang)}$it", Ink.copy(alpha = 0.75f))
             }
             CalendarLogic.headline(day)?.let { headline ->
                 Text(
                     headline.name(lang == Lang.TE),
-                    fontSize = 8.sp, lineHeight = 9.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
+                    fontSize = 7.sp, lineHeight = 8.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
                     color = if (headline.k == Festival.KIND_VRATAM) colors.vratam else colors.holidayRed,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
         }
     }
+}
+
+/** One line of the small print in a date box. */
+@Composable
+private fun TinyLine(text: String, color: Color) {
+    Text(text, color = color, fontSize = 6.5.sp, lineHeight = 8.sp, maxLines = 1, overflow = TextOverflow.Clip, textAlign = TextAlign.Center)
 }
 
 /** The festivals list that fills the blank corner of the grid (the full list is also printed under the grid). */
@@ -241,7 +251,7 @@ private fun FestivalsBox(main: List<Pair<DayData, Festival>>, rows: Int, lang: L
             Text(
                 "${day.date.dayOfMonth} ${fest.name(lang == Lang.TE)}",
                 Modifier.clickable { onDay(day.date) },
-                color = Ink, fontSize = 8.sp, lineHeight = 9.sp,
+                color = Ink, fontSize = 9.sp, lineHeight = 11.sp,
             )
         }
     }

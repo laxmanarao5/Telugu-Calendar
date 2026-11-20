@@ -5,7 +5,7 @@ import java.time.YearMonth
 
 /**
  * Reads the month files `assets/calendar/<year>-<MM>.json` (made by tools/panchangam). Adding a year is just adding its twelve files.
- * [first] reads only the month the screen needs, [rest] the others, so the app can draw before everything is parsed.
+ * The app reads only what it needs: [first] the month shown at start, [window] the rest of this year and next year, and [load] any other months on demand.
  */
 class CalendarRepository(private val assets: AssetManager) {
     private val files: Map<YearMonth, String> = (assets.list("calendar").orEmpty())
@@ -13,25 +13,24 @@ class CalendarRepository(private val assets: AssetManager) {
         .sortedBy { it.first }
         .toMap()
 
-    /** Only the month nearest to [want] (it is [want] itself when that month has a file). */
+    /** Only the month nearest to [want] (it is [want] itself when that month has a file). The pager already knows every month. */
     fun first(want: YearMonth): AppData {
         require(files.isNotEmpty()) { "No calendar data is bundled with the app." }
         val chosen = files.keys.lastOrNull { it <= want } ?: files.keys.first()
-        return AppData(listOf(read(chosen)), files.keys, complete = false)
+        return AppData(load(listOf(chosen)), files.keys)
     }
 
-    /** Every other month, the ones closest to [first]'s month read first. */
-    fun rest(first: AppData): AppData {
-        val have = first.chunks.map { YearMonth.of(it.year, it.month) }.toSet()
-        val centre = have.first()
-        val more = files.keys.filter { it !in have }
-            .sortedBy { kotlin.math.abs(it.year * 12 + it.monthValue - (centre.year * 12 + centre.monthValue)) }
-            .map { read(it) }
-        return first.withMore(more)
-    }
+    /** The months of [centre]'s year and of the year after it, the ones closest to [centre] first. */
+    fun window(centre: YearMonth): List<YearMonth> =
+        files.keys.filter { it.year == centre.year || it.year == centre.year + 1 }.sortedBy { distance(it, centre) }
 
-    private fun read(ym: YearMonth): YearData =
-        YearData.parse(assets.open("calendar/${files.getValue(ym)}").bufferedReader().use { it.readText() })
+    /** Reads the given months (those that have no file are skipped). */
+    fun load(months: Collection<YearMonth>): List<YearData> =
+        months.filter { it in files }.map { ym ->
+            YearData.parse(assets.open("calendar/${files.getValue(ym)}").bufferedReader().use { it.readText() })
+        }
+
+    private fun distance(a: YearMonth, b: YearMonth) = kotlin.math.abs(a.year * 12 + a.monthValue - (b.year * 12 + b.monthValue))
 
     companion object {
         private val NAME = Regex("""(\d{4})-(\d{2})\.json""")

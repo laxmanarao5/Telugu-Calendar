@@ -29,6 +29,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -83,6 +84,9 @@ private fun Root(vm: AppViewModel) {
     val tab = if (picked >= 0) picked else (defaultView ?: DefaultView.WALL).ordinal
     val app = (state as? DataState.Ready)?.data
 
+    // Months far from the start (another year) are read as the user pages towards them.
+    LaunchedEffect(month, app != null) { if (app != null) vm.ensureNear(month) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -129,7 +133,10 @@ private fun Root(vm: AppViewModel) {
                 is DataState.Ready -> when (Tab.entries[tab]) {
                     Tab.WALL -> WallCalendarScreen(s.data, lang, month, vm::setMonth, vm::openDay)
                     Tab.MODERN -> ModernCalendarScreen(s.data, lang, month, selected, vm::setMonth, vm::select, vm::goToToday)
-                    Tab.FESTIVALS -> if (s.data.complete) FestivalsScreen(s.data, lang, vm::openDay) else Centered { CircularProgressIndicator() }
+                    Tab.FESTIVALS -> if (s.data.complete) FestivalsScreen(s.data, lang, vm::openDay) else {
+                        LaunchedEffect(Unit) { vm.ensureAll() }
+                        Centered { CircularProgressIndicator() }
+                    }
                     Tab.MORE -> MoreScreen(
                         app, lang, theme, defaultView ?: DefaultView.WALL, update,
                         vm::setLang, vm::setTheme, vm::setDefaultView,

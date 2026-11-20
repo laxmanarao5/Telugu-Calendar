@@ -11,7 +11,7 @@ A free Android app: the Telugu panchangam calendar for **2026** (2027 is generat
 * An **in-app update checker**: on launch it reads `releases/version.json` from this GitHub repo and offers the new APK.
 
 ## Download
-**[Download the latest APK](https://github.com/laxmanarao5/Telugu-Calendar/raw/main/releases/telugu-calendar.apk)** (version 1.0.1, about 24 MB). On your phone, open the file and allow "Install unknown apps" for your browser when asked. The app then updates itself from this repo.
+**[Download the latest APK](https://github.com/laxmanarao5/Telugu-Calendar/raw/main/releases/telugu-calendar.apk)** (version 1.0.2, about 24 MB). On your phone, open the file and allow "Install unknown apps" for your browser when asked. The app then updates itself from this repo.
 
 Everything is worked out ahead of time and bundled in the app as JSON, so it runs fully offline. Nothing to pay for, no server.
 

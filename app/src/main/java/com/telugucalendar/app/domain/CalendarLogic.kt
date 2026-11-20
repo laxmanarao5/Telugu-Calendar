@@ -43,6 +43,12 @@ object CalendarLogic {
     /** "4:30-6:00" from ["16:30","18:00"]; blank when there is no range. */
     fun rangeShort(range: List<String>): String = if (range.size == 2) "${clockShort(range[0])}-${clockShort(range[1])}" else ""
 
+    /** When a slot ends as a bare clock time with a dot, as printed in a wall calendar's date box: "2.29" (the date is left out). */
+    fun slotEndShort(slot: Slot): String = if (slot.e.length < 16) "" else clockShort(slot.e.substring(11, 16)).replace(':', '.')
+
+    /** "4.30-6.00" from ["16:30","18:00"]: the Rahu Kalam line of a date box. */
+    fun rangeDots(range: List<String>): String = rangeShort(range).replace(':', '.')
+
     /** The Telugu lunar months a Gregorian month touches, in order, e.g. Pushya then Magha. Each is (month 1..12, adhika). */
     fun lunarMonthsOf(days: List<DayData>): List<Pair<Int, Boolean>> =
         days.map { it.ms to it.isAdhika }.distinct()

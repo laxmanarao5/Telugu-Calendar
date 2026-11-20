@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDate
@@ -75,19 +77,48 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         viewModelScope.launch {
-            // Read just the current month first so the screen can appear at once, then the rest in the background.
-            val repo = runCatching { withContext(Dispatchers.IO) { CalendarRepository(app.assets) } }
-            val first = repo.mapCatching { r -> withContext(Dispatchers.IO) { r.first(YearMonth.now()) } }
-            first.onFailure { _data.value = DataState.Failed(it.message ?: "") }
-            first.onSuccess { firstChunk ->
+            // Read just the current month first so the screen can appear at once; then this year and next year in the background.
+            val opened = runCatching {
+                withContext(Dispatchers.IO) {
+                    val r = CalendarRepository(app.assets)
+                    r to r.first(YearMonth.now())
+                }
+            }
+            opened.onFailure { _data.value = DataState.Failed(it.message ?: "") }
+            opened.onSuccess { (r, firstChunk) ->
+                repository = r
                 _month.value = firstChunk.clamp(YearMonth.now())
                 _data.value = DataState.Ready(firstChunk)
-                runCatching { withContext(Dispatchers.IO) { repo.getOrThrow().rest(firstChunk) } }
-                    .onSuccess { _data.value = DataState.Ready(it) }
-                    .onFailure { _data.value = DataState.Failed(it.message ?: "") }
+                load(r.window(_month.value))
             }
         }
         checkForUpdate(manual = false)
+    }
+
+    private var repository: CalendarRepository? = null
+    private val loading = Mutex()
+
+    /** Reads whichever of [wanted] have not been read yet and adds them to the data (one read at a time). */
+    private suspend fun load(wanted: List<YearMonth>) {
+        loading.withLock {
+            val repo = repository ?: return@withLock
+            val current = (_data.value as? DataState.Ready)?.data ?: return@withLock
+            val missing = wanted.filter { it in current.months && !current.isLoaded(it) }
+            if (missing.isEmpty()) return@withLock
+            runCatching { withContext(Dispatchers.IO) { repo.load(missing) } }
+                .onSuccess { more -> (_data.value as? DataState.Ready)?.let { _data.value = DataState.Ready(it.data.withMore(more)) } }
+                .onFailure { _data.value = DataState.Failed(it.message ?: "") }
+        }
+    }
+
+    /** Makes sure [ym] and the months either side are read: called as the user pages, so far-away years load when they are reached. */
+    fun ensureNear(ym: YearMonth) {
+        viewModelScope.launch { load(listOf(ym, ym.minusMonths(1), ym.plusMonths(1))) }
+    }
+
+    /** Reads every month (the Festivals tab lists whole years). */
+    fun ensureAll() {
+        viewModelScope.launch { load((_data.value as? DataState.Ready)?.data?.months.orEmpty()) }
     }
 
     fun setMonth(ym: YearMonth) { _month.value = ym }

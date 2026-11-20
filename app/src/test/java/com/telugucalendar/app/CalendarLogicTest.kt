@@ -59,6 +59,13 @@ class CalendarLogicTest {
         assertEquals("", CalendarLogic.rangeShort(emptyList()))
     }
 
+    @Test fun dateBoxSmallPrintUsesDots() {
+        assertEquals("10.23", CalendarLogic.slotEndShort(Slot(1, "2026-01-01T22:23")))
+        assertEquals("2.29", CalendarLogic.slotEndShort(Slot(1, "2026-01-02T14:29")))
+        assertEquals("", CalendarLogic.slotEndShort(Slot(1, "")))
+        assertEquals("4.30-6.00", CalendarLogic.rangeDots(listOf("16:30", "18:00")))
+    }
+
     @Test fun monthGridAlwaysWholeWeeks() {
         for (m in 1..12) assertEquals(0, CalendarLogic.monthGrid(YearMonth.of(2027, m)).size % 7)
     }

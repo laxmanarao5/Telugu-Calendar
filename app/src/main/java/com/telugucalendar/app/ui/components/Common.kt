@@ -26,6 +26,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.util.lerp
+import kotlin.math.absoluteValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -55,9 +58,23 @@ fun MonthPager(
         months.getOrNull(pager.settledPage)?.let { if (it != month) onMonth(it) }
     }
     LaunchedEffect(index) {
-        if (pager.currentPage != index) pager.animateScrollToPage(index)
+        val gap = kotlin.math.abs(pager.currentPage - index)
+        // A neighbouring month glides; a far jump (the Today button) goes straight there instead of racing through every month in between.
+        if (gap == 1) pager.animateScrollToPage(index) else if (gap > 1) pager.scrollToPage(index)
     }
-    HorizontalPager(state = pager, modifier = modifier, beyondViewportPageCount = 0) { page -> content(months[page]) }
+    // The neighbouring months are built ahead of the swipe, so a page is already drawn when it slides in. The page being left fades and shrinks a little as the next one grows in.
+    HorizontalPager(state = pager, modifier = modifier, beyondViewportPageCount = 1, pageSpacing = 12.dp) { page ->
+        Box(
+            Modifier.graphicsLayer {
+                val distance = ((pager.currentPage - page) + pager.currentPageOffsetFraction).absoluteValue.coerceIn(0f, 1f)
+                val near = 1f - distance
+                alpha = lerp(0.4f, 1f, near)
+                val scale = lerp(0.92f, 1f, near)
+                scaleX = scale
+                scaleY = scale
+            },
+        ) { content(months[page]) }
+    }
 }
 
 /** A full moon (outlined) or new moon (filled) mark for Pournami and Amavasya. */

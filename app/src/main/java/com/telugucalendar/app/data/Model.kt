@@ -95,12 +95,11 @@ fun Festival.matches(filter: FestFilter) = when (filter) {
 /**
  * Everything the app knows, indexed by date. The data comes as one chunk per month (`assets/calendar/<year>-<MM>.json`).
  * [knownMonths] lists every month that has a file, so the pager is complete even while only the first chunk is loaded;
- * [complete] is true once every chunk has been read.
+ * [complete] is true once every month has been read; months are read on demand, so it can stay false for far-away years.
  */
 class AppData(
     val chunks: List<YearData>,
     knownMonths: Collection<YearMonth> = emptyList(),
-    val complete: Boolean = true,
 ) {
     private val days: List<DayData> = chunks.flatMap { it.days }.sortedBy { it.date }
     private val byDate: Map<LocalDate, DayData> = days.associateBy { it.date }
@@ -109,9 +108,10 @@ class AppData(
     /** Every month of every bundled year, in order: the pages of the month pager. */
     val months: List<YearMonth> = (knownMonths + days.map { YearMonth.from(it.date) }).distinct().sorted()
     val sortedYears: List<Int> = months.map { it.year }.distinct()
+    val complete: Boolean = months.all { it in loadedMonths }
 
-    /** This data plus [more] chunks, now complete. */
-    fun withMore(more: List<YearData>) = AppData(chunks + more, months, complete = true)
+    /** This data plus [more] chunks. */
+    fun withMore(more: List<YearData>) = AppData(chunks + more, months)
 
     fun day(date: LocalDate): DayData? = byDate[date]
 

@@ -1,1 +1,1 @@
-New wall and modern calendar layouts like a printed panchangam, faster start-up, calendar for 2026 and 2027.
+Date boxes now show tithi, nakshatra and Rahu Kalam times like a printed calendar, smoother month swiping, and faster start-up (current month first, then this year and next year).
