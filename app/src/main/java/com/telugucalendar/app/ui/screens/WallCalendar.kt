@@ -1,6 +1,32 @@
 package com.telugucalendar.app.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.ZoomOut
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -61,6 +87,7 @@ private val Ink = Color(0xFF2B1B00)
 private val Line = Color(0xFFB9A98A)
 private val LabelWidth = 46.dp
 private val CellHeight = 100.dp
+private const val MaxZoom = 4f
 
 /**
  * The traditional printed wall calendar: a header with the Telugu year, the month banner and the Rahu Kalam table; then one row per weekday
@@ -74,8 +101,63 @@ fun WallCalendarScreen(
     onMonth: (YearMonth) -> Unit,
     onDay: (LocalDate) -> Unit,
 ) {
-    MonthPager(app.months, month, onMonth, Modifier.fillMaxSize()) { ym ->
-        if (app.isLoaded(ym) || app.complete) WallPage(app, ym, lang, onDay) else LoadingMonth()
+    // Pinch with two fingers to zoom into the page (the small print, the moon marks); drag to move around while zoomed; the button zooms in or resets.
+    var zoom by remember { mutableFloatStateOf(1f) }
+    var pan by remember { mutableStateOf(Offset.Zero) }
+    var box by remember { mutableStateOf(IntSize.Zero) }
+    fun clampPan(p: Offset, z: Float) = Offset(p.x.coerceIn(box.width * (1f - z), 0f), p.y.coerceIn(box.height * (1f - z), 0f))
+    fun zoomTo(target: Float, about: Offset) {
+        val z = target.coerceIn(1f, MaxZoom)
+        pan = if (z <= 1f) Offset.Zero else clampPan(about - (about - pan) * (z / zoom), z)
+        zoom = z
+    }
+    Box(
+        Modifier.fillMaxSize().clipToBounds().onSizeChanged { box = it }
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    do {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        val fingers = event.changes.count { it.pressed }
+                        // Two fingers always zoom; one finger moves the page only while it is zoomed in (otherwise it scrolls and swipes as usual).
+                        if (fingers >= 2 || zoom > 1f) {
+                            val change = event.calculateZoom()
+                            val move = event.calculatePan()
+                            if (change != 1f || move != Offset.Zero) {
+                                val centre = event.calculateCentroid(useCurrent = false)
+                                val z = (zoom * change).coerceIn(1f, MaxZoom)
+                                pan = if (z <= 1f) Offset.Zero else clampPan(centre - (centre - pan) * (z / zoom) + move, z)
+                                zoom = z
+                                event.changes.forEach { if (it.positionChanged()) it.consume() }
+                            }
+                        }
+                    } while (event.changes.any { it.pressed })
+                }
+            },
+    ) {
+        Box(
+            Modifier.fillMaxSize().graphicsLayer {
+                transformOrigin = TransformOrigin(0f, 0f)
+                scaleX = zoom
+                scaleY = zoom
+                translationX = pan.x
+                translationY = pan.y
+            },
+        ) {
+            MonthPager(app.months, month, onMonth, Modifier.fillMaxSize()) { ym ->
+                if (app.isLoaded(ym) || app.complete) WallPage(app, ym, lang, onDay) else LoadingMonth()
+            }
+        }
+        SmallFloatingActionButton(
+            onClick = { if (zoom > 1f) zoomTo(1f, Offset.Zero) else zoomTo(2.5f, Offset(box.width / 2f, box.height / 3f)) },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.92f),
+        ) {
+            Icon(
+                if (zoom > 1f) Icons.Filled.ZoomOut else Icons.Filled.ZoomIn,
+                contentDescription = (if (zoom > 1f) T.zoomOut else T.zoomIn).of(lang),
+            )
+        }
     }
 }
 
@@ -205,21 +287,27 @@ private fun WallCell(date: LocalDate, day: DayData?, lang: Lang, isToday: Boolea
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(date.dayOfMonth.toString(), color = numberColor, fontSize = 22.sp, lineHeight = 24.sp, fontWeight = FontWeight.Bold)
             if (day != null) {
-                if (CalendarLogic.hasMoonMark(day, "pournami")) MoonMark(full = true, size = 8)
-                if (CalendarLogic.hasMoonMark(day, "amavasya")) MoonMark(full = false, size = 8)
+                if (CalendarLogic.hasMoonMark(day, "pournami")) MoonMark(full = true, size = 13)
+                if (CalendarLogic.hasMoonMark(day, "amavasya")) MoonMark(full = false, size = 13)
             }
         }
         if (day != null) {
-            // Small print like a printed wall calendar: each tithi and nakshatra of the day with the time it ends, then the Rahu Kalam.
-            day.t.take(2).forEach {
-                TinyLine("${Names.pakshaShort(it.i, lang)}.${Names.tithi(it.i, lang)}.${CalendarLogic.slotEndShort(it)}", Ink)
+            // Small print like a printed wall calendar, all in one text: each tithi and nakshatra of the day with the time it ends, then the Rahu Kalam.
+            // (One text per box instead of one per line keeps the page light, so month swipes stay smooth.)
+            val print = remember(day, lang) {
+                buildAnnotatedString {
+                    var first = true
+                    fun line(text: String, color: Color) {
+                        if (!first) append('\n')
+                        first = false
+                        withStyle(SpanStyle(color = color)) { append(text) }
+                    }
+                    day.t.take(2).forEach { line("${Names.pakshaShort(it.i, lang)}.${Names.tithi(it.i, lang)}.${CalendarLogic.slotEndShort(it)}", Ink) }
+                    day.n.take(2).forEach { line("${Names.nakshatra(it.i, lang)}.${CalendarLogic.slotEndShort(it)}", Ink.copy(alpha = 0.75f)) }
+                    CalendarLogic.rangeDots(day.rk).takeIf { it.isNotEmpty() }?.let { line("${T.rahuAbbr.of(lang)}$it", Ink.copy(alpha = 0.75f)) }
+                }
             }
-            day.n.take(2).forEach {
-                TinyLine("${Names.nakshatra(it.i, lang)}.${CalendarLogic.slotEndShort(it)}", Ink.copy(alpha = 0.75f))
-            }
-            CalendarLogic.rangeDots(day.rk).takeIf { it.isNotEmpty() }?.let {
-                TinyLine("${T.rahuAbbr.of(lang)}$it", Ink.copy(alpha = 0.75f))
-            }
+            Text(print, Modifier.fillMaxWidth(), fontSize = 6.5.sp, lineHeight = 8.sp, softWrap = false, overflow = TextOverflow.Clip, textAlign = TextAlign.Center)
             CalendarLogic.headline(day)?.let { headline ->
                 Text(
                     headline.name(lang == Lang.TE),
@@ -230,12 +318,6 @@ private fun WallCell(date: LocalDate, day: DayData?, lang: Lang, isToday: Boolea
             }
         }
     }
-}
-
-/** One line of the small print in a date box. */
-@Composable
-private fun TinyLine(text: String, color: Color) {
-    Text(text, color = color, fontSize = 6.5.sp, lineHeight = 8.sp, maxLines = 1, overflow = TextOverflow.Clip, textAlign = TextAlign.Center)
 }
 
 /** The festivals list that fills the blank corner of the grid (the full list is also printed under the grid). */

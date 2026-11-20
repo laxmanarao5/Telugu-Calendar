@@ -1,1 +1,1 @@
-Date boxes now show tithi, nakshatra and Rahu Kalam times like a printed calendar, smoother month swiping, and faster start-up (current month first, then this year and next year).
+Smoother month swiping, pinch to zoom on the wall calendar, a clearer black spot for Amavasya and a larger golden moon for Pournami.

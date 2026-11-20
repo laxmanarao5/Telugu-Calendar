@@ -75,5 +75,7 @@ object T {
     val until = Str("వరకు", "until")
     val shakaYear = Str("శక సంవత్సరం", "Saka year")
     val rahuAbbr = Str("రా.", "Rahu ")
+    val zoomIn = Str("పెద్దది చేయి", "Zoom in")
+    val zoomOut = Str("సాధారణ పరిమాణం", "Reset zoom")
     val pandugulu =Str("పండుగలు", "Festivals")
 }

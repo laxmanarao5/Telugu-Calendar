@@ -1,6 +1,10 @@
 package com.telugucalendar.app.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +16,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,16 +65,21 @@ fun MonthPager(
     LaunchedEffect(index) {
         val gap = kotlin.math.abs(pager.currentPage - index)
         // A neighbouring month glides; a far jump (the Today button) goes straight there instead of racing through every month in between.
-        if (gap == 1) pager.animateScrollToPage(index) else if (gap > 1) pager.scrollToPage(index)
+        if (gap == 1) pager.animateScrollToPage(index, animationSpec = tween(durationMillis = 380, easing = FastOutSlowInEasing))
+        else if (gap > 1) pager.scrollToPage(index)
     }
-    // The neighbouring months are built ahead of the swipe, so a page is already drawn when it slides in. The page being left fades and shrinks a little as the next one grows in.
-    HorizontalPager(state = pager, modifier = modifier, beyondViewportPageCount = 1, pageSpacing = 12.dp) { page ->
+    // A soft, unhurried settle after the finger lifts.
+    val fling = PagerDefaults.flingBehavior(
+        state = pager,
+        snapAnimationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessLow),
+    )
+    // The neighbouring months are built ahead of the swipe. Only a cheap transform is used while sliding (no fading: a changing alpha forces the whole busy page
+    // into an off-screen layer on every frame), so the page being left shrinks a touch as the next one grows in.
+    HorizontalPager(state = pager, modifier = modifier, beyondViewportPageCount = 1, pageSpacing = 8.dp, flingBehavior = fling) { page ->
         Box(
             Modifier.graphicsLayer {
                 val distance = ((pager.currentPage - page) + pager.currentPageOffsetFraction).absoluteValue.coerceIn(0f, 1f)
-                val near = 1f - distance
-                alpha = lerp(0.4f, 1f, near)
-                val scale = lerp(0.92f, 1f, near)
+                val scale = lerp(1f, 0.95f, distance)
                 scaleX = scale
                 scaleY = scale
             },
@@ -77,16 +87,15 @@ fun MonthPager(
     }
 }
 
-/** A full moon (outlined) or new moon (filled) mark for Pournami and Amavasya. */
+/** Pournami (a golden full moon) and Amavasya (a solid black spot); both have a thin grey ring so they stand out on light and dark backgrounds. */
 @Composable
-fun MoonMark(full: Boolean, modifier: Modifier = Modifier, size: Int = 9) {
-    val ink = MaterialTheme.colorScheme.onSurface
+fun MoonMark(full: Boolean, modifier: Modifier = Modifier, size: Int = 12) {
     Box(
         modifier
             .size(size.dp)
             .clip(CircleShape)
-            .background(if (full) Color(0xFFFFE082) else ink)
-            .border(1.dp, ink, CircleShape),
+            .background(if (full) Color(0xFFFFD54F) else Color.Black)
+            .border(1.dp, if (full) Color(0xFF8D6E00) else Color(0xFF9E9E9E), CircleShape),
     )
 }
 
